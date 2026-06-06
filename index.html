@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yeti Beta — Keynine Studios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f7fbfc;
+    --surface: #ffffff;
+    --surface2: #eef8fb;
+    --border: #c8eaf2;
+    --border-dark: #9dd4e4;
+    --cyan: #0baed4;
+    --cyan-deep: #0891b2;
+    --cyan-pale: #e0f5fb;
+    --text: #0d2b33;
+    --muted: #5a8fa0;
+    --muted-light: #92bfcc;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --mono: 'DM Mono', 'Courier New', monospace;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1.5rem;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Soft radial cyan glow behind content */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 500px;
+    background: radial-gradient(ellipse, rgba(11,174,212,0.10) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Subtle dot grid */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, var(--border-dark) 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0.25;
+    pointer-events: none;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    animation: rise 0.6s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--cyan);
+    padding: 0.55rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .topbar-brand {
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.85);
+  }
+
+  .topbar-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+  }
+
+  /* ── MAIN CARD ── */
+  .card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-top: none;
+    padding: 2.75rem 2.5rem 2.25rem;
+  }
+
+  .app-icon {
+    width: 64px; height: 64px;
+    background: var(--cyan-pale);
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    line-height: 1;
+  }
+
+  .app-title {
+    font-family: var(--serif);
+    font-size: 2.6rem;
+    line-height: 1;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.3rem;
+  }
+
+  .app-title em {
+    font-style: italic;
+    color: var(--cyan-deep);
+  }
+
+  .app-subtitle {
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+  }
+
+  /* ── STATUS / RESULT ── */
+  .status {
+    font-size: 0.7rem;
+    color: var(--muted);
+    min-height: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .status.error { color: #c0392b; }
+
+  .spinner {
+    width: 8px; height: 8px;
+    border: 1.5px solid var(--border-dark);
+    border-top-color: var(--cyan);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── RELEASE BOX ── */
+  .release-box {
+    display: none;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    animation: rise 0.35s ease both;
+  }
+
+  .release-box.show { display: block; }
+
+  .release-tag {
+    font-size: 0.58rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+    margin-bottom: 0.4rem;
+  }
+
+  .release-name {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    color: var(--text);
+    margin-bottom: 0.2rem;
+  }
+
+  .release-date {
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+  }
+
+  /* ── ASSETS ── */
+  .assets { display: flex; flex-direction: column; gap: 0.4rem; }
+
+  .asset-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.9rem;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    transition: border-color 0.15s;
+  }
+
+  .asset-row.dmg { border-color: var(--border-dark); }
+  .asset-row.dmg:hover { border-color: var(--cyan); }
+
+  .asset-icon { font-size: 0.9rem; flex-shrink: 0; }
+
+  .asset-info { flex: 1; min-width: 0; }
+
+  .asset-name {
+    font-size: 0.73rem;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .asset-row.dmg .asset-name { color: var(--cyan-deep); font-weight: 500; }
+
+  .asset-size {
+    font-size: 0.58rem;
+    color: var(--muted-light);
+    margin-top: 0.1rem;
+  }
+
+  .dl-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--mono);
+    font-size: 0.63rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    background: var(--cyan);
+    color: #fff;
+    padding: 0.4rem 0.9rem;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+
+  .dl-btn:hover { background: var(--cyan-deep); }
+
+  .dl-btn.secondary {
+    background: transparent;
+    color: var(--muted);
+    border: 1.5px solid var(--border);
+  }
+
+  .dl-btn.secondary:hover { border-color: var(--border-dark); color: var(--text); }
+
+  .no-dmg {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-align: center;
+    padding: 1rem;
+    border: 1.5px dashed var(--border);
+  }
+
+  /* ── NOTES ── */
+  .notes-toggle {
+    background: none;
+    border: none;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 0;
+    margin-top: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: color 0.15s;
+  }
+
+  .notes-toggle:hover { color: var(--cyan-deep); }
+
+  .notes-body {
+    display: none;
+    margin-top: 0.75rem;
+    font-size: 0.7rem;
+    color: var(--muted);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    max-height: 140px;
+    overflow-y: auto;
+    border-left: 2px solid var(--border);
+    padding-left: 0.85rem;
+  }
+
+  .notes-body.show { display: block; }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-top: none;
+    padding: 0.85rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    font-size: 0.58rem;
+    color: var(--muted-light);
+    letter-spacing: 0.08em;
+  }
+
+  .footer-right {
+    font-size: 0.58rem;
+    color: var(--muted-light);
+  }
+
+  .footer-right a {
+    color: var(--cyan-deep);
+    text-decoration: none;
+  }
+
+  .footer-right a:hover { text-decoration: underline; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--surface2); }
+  ::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <span class="topbar-brand">Keynine Studios</span>
+    <span class="topbar-dot"></span>
+    <span class="topbar-brand">macOS</span>
+  </div>
+
+  <!-- Card -->
+  <div class="card">
+    <div class="app-icon">🧊</div>
+    <h1 class="app-title">Yeti <em>Beta</em></h1>
+    <p class="app-subtitle">Early Access Build · closetcreeper/yeti</p>
+
+    <div class="status" id="status">
+      <span class="spinner"></span>
+      <span>Fetching latest release…</span>
+    </div>
+
+    <div class="release-box" id="releaseBox">
+      <div class="release-tag">Latest Release</div>
+      <div class="release-name" id="releaseName"></div>
+      <div class="release-date" id="releaseDate"></div>
+      <div class="assets" id="assetsList"></div>
+      <button class="notes-toggle" onclick="toggleNotes()">
+        <span id="notesArrow">▶</span> Release Notes
+      </button>
+      <div class="notes-body" id="notesBody"></div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span class="footer-left">© 2026 Keynine Studios LLC</span>
+    <span class="footer-right">
+      <a href="https://keyninestudios.com" target="_blank">keyninestudios.com</a>
+    </span>
+  </div>
+
+</div>
+
+<script>
+  const REPO = 'closetcreeper/yeti';
+
+  function setStatus(msg, type = '') {
+    const el = document.getElementById('status');
+    el.className = 'status ' + type;
+    el.innerHTML = type === 'loading'
+      ? `<span class="spinner"></span><span>${msg}</span>`
+      : msg;
+  }
+
+  function formatBytes(b) {
+    if (!b) return '';
+    return b < 1024 * 1024
+      ? (b / 1024).toFixed(0) + ' KB'
+      : (b / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  function formatDate(s) {
+    return new Date(s).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric'
+    });
+  }
+
+  async function load() {
+    setStatus('Fetching latest release…', 'loading');
+    try {
+      const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`);
+      if (res.status === 404) throw new Error('No releases found for this repo.');
+      if (res.status === 403) throw new Error('GitHub rate limit hit. Try again shortly.');
+      if (!res.ok) throw new Error(`GitHub API error ${res.status}.`);
+      const data = await res.json();
+      render(data);
+    } catch (err) {
+      setStatus('⚠ ' + err.message, 'error');
+    }
+  }
+
+  function render(data) {
+    document.getElementById('releaseName').textContent = data.name || data.tag_name;
+    document.getElementById('releaseDate').textContent = 'Published ' + formatDate(data.published_at);
+
+    const assets = data.assets || [];
+    const dmgs = assets.filter(a => a.name.toLowerCase().endsWith('.dmg'));
+    const others = assets.filter(a => !a.name.toLowerCase().endsWith('.dmg'));
+    const list = document.getElementById('assetsList');
+    list.innerHTML = '';
+
+    if (dmgs.length === 0 && assets.length === 0) {
+      list.innerHTML = '<div class="no-dmg">No downloadable assets in this release yet.</div>';
+    } else if (dmgs.length === 0) {
+      list.innerHTML = '<div class="no-dmg">No .dmg file found — see other assets below.</div>';
+    }
+
+    dmgs.forEach(a => list.appendChild(makeRow(a, true)));
+    others.forEach(a => list.appendChild(makeRow(a, false)));
+
+    document.getElementById('notesBody').textContent = data.body || 'No release notes provided.';
+    document.getElementById('releaseBox').classList.add('show');
+
+    const count = assets.length;
+    setStatus(count
+      ? `${count} asset${count !== 1 ? 's' : ''} available.`
+      : 'Release found — no binary assets attached yet.'
+    );
+  }
+
+  function makeRow(asset, isDmg) {
+    const row = document.createElement('div');
+    row.className = 'asset-row' + (isDmg ? ' dmg' : '');
+
+    const icon = document.createElement('span');
+    icon.className = 'asset-icon';
+    icon.textContent = isDmg ? '💿' : '📦';
+
+    const info = document.createElement('div');
+    info.className = 'asset-info';
+
+    const name = document.createElement('div');
+    name.className = 'asset-name';
+    name.textContent = asset.name;
+
+    const size = document.createElement('div');
+    size.className = 'asset-size';
+    size.textContent = formatBytes(asset.size);
+
+    info.appendChild(name);
+    info.appendChild(size);
+
+    const btn = document.createElement('a');
+    btn.className = 'dl-btn' + (isDmg ? '' : ' secondary');
+    btn.href = asset.browser_download_url;
+    btn.textContent = isDmg ? '⬇ Download' : '⬇';
+    btn.setAttribute('download', asset.name);
+
+    row.appendChild(icon);
+    row.appendChild(info);
+    row.appendChild(btn);
+    return row;
+  }
+
+  function toggleNotes() {
+    const body = document.getElementById('notesBody');
+    const arrow = document.getElementById('notesArrow');
+    const open = body.classList.toggle('show');
+    arrow.textContent = open ? '▼' : '▶';
+  }
+
+  load();
+</script>
+</body>
+</html>
