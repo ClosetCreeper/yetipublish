@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yeti Download</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #f7fbfc;
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 2rem;
+  }
+
+  .logo {
+    width: 96px;
+    height: 96px;
+    border-radius: 22px;
+    object-fit: contain;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 2rem;
+    color: #0d2b33;
+    letter-spacing: -0.02em;
+  }
+
+  .dl-btn {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    background: #0baed4;
+    color: #fff;
+    padding: 0.75rem 1.75rem;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .dl-btn:hover { background: #0891b2; }
+  .dl-btn:disabled { background: #c8eaf2; cursor: default; }
+
+  .status {
+    font-size: 0.62rem;
+    color: #5a8fa0;
+    letter-spacing: 0.05em;
+  }
+
+  .status.error { color: #c0392b; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <img class="logo" id="logo" src="https://raw.githubusercontent.com/closetcreeper/yeti/main/logo.png" alt="Yeti" onerror="this.style.display='none'">
+  <h1>Yeti Download</h1>
+  <a class="dl-btn" id="dlBtn" href="#" style="pointer-events:none;background:#c8eaf2;">Loading…</a>
+  <span class="status" id="status">Fetching latest release…</span>
+</div>
+
+<script>
+  const REPO = 'closetcreeper/yeti';
+
+  async function load() {
+    try {
+      const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`);
+      if (!res.ok) throw new Error('Could not fetch release.');
+      const data = await res.json();
+      const dmg = (data.assets || []).find(a => a.name.toLowerCase().endsWith('.dmg'));
+      if (!dmg) throw new Error('No .dmg found in latest release.');
+
+      const btn = document.getElementById('dlBtn');
+      btn.href = dmg.browser_download_url;
+      btn.textContent = 'Download Latest DMG';
+      btn.style.pointerEvents = '';
+      btn.style.background = '';
+      btn.setAttribute('download', dmg.name);
+
+      document.getElementById('status').textContent = `${data.tag_name} · ${(dmg.size / (1024*1024)).toFixed(1)} MB`;
+    } catch (err) {
+      document.getElementById('dlBtn').textContent = 'Unavailable';
+      const s = document.getElementById('status');
+      s.textContent = err.message;
+      s.className = 'status error';
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>
