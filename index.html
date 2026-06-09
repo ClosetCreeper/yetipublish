@@ -375,7 +375,6 @@
 </footer>
 
 <script>
-  // ── REPLACE with your Google Apps Script Web App URL ──
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby650Ufjv1kjEStqBjpOcGmqNTRrMQ6493VIAesLdWJ62kboPo7dQ7iEjjxXzcdRDz7/exec';
 
   async function submitEmail() {
@@ -402,16 +401,31 @@
         },
         body: JSON.stringify({ email })
       });
-      
+
       const data = await res.json();
 
-      showToast();
-      input.value = '';
-      msg.textContent = '';
-      msg.className = 'form-msg';
+      if (data.status === "duplicate") {
+        msg.textContent = "You're already on the list 👀";
+        msg.className = "form-msg error";
+        btn.disabled = false;
+        return;
+      }
+
+      if (data.status === "ok") {
+        showToast();
+        input.value = '';
+        msg.textContent = '';
+        msg.className = 'form-msg';
+        btn.disabled = false;
+        return;
+      }
+
+      msg.textContent = data.message || "Something went wrong.";
+      msg.className = "form-msg error";
+      btn.disabled = false;
 
     } catch (err) {
-      msg.textContent = 'Something went wrong. Please try again.';
+      msg.textContent = 'Network error. Please try again.';
       msg.className = 'form-msg error';
       btn.disabled = false;
     }
