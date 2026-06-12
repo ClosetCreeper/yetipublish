@@ -29,7 +29,6 @@
     min-height: 100vh;
   }
 
-  /* ── LAYOUT ── */
   .page {
     min-height: 100vh;
     display: grid;
@@ -41,7 +40,6 @@
     align-items: center;
   }
 
-  /* ── LEFT COLUMN ── */
   .left {
     display: flex;
     flex-direction: column;
@@ -126,7 +124,6 @@
     letter-spacing: 0.01em;
   }
 
-  /* ── FORM ── */
   .form-wrap {
     display: flex;
     flex-direction: column;
@@ -190,7 +187,6 @@
   .form-msg.error { color: #ef4444; }
   .form-msg.loading { color: var(--muted); }
 
-  /* ── RIGHT COLUMN ── */
   .right {
     display: flex;
     align-items: center;
@@ -227,7 +223,6 @@
     display: block;
   }
 
-  /* ── TOAST ── */
   .toast {
     position: fixed;
     top: -80px;
@@ -263,7 +258,6 @@
     font-size: 0.55rem;
   }
 
-  /* ── FOOTER ── */
   footer {
     text-align: center;
     padding: 1.5rem;
@@ -277,13 +271,11 @@
   footer a { color: var(--muted); text-decoration: none; }
   footer a:hover { color: var(--text); }
 
-  /* ── ANIMATION ── */
   @keyframes fadeup {
     from { opacity: 0; transform: translateY(18px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* ── RESPONSIVE ── */
   @media (max-width: 720px) {
     .page {
       grid-template-columns: 1fr;
@@ -315,7 +307,6 @@
 
 <main class="page">
 
-  <!-- LEFT: text + form -->
   <div class="left">
 
     <div class="badge">
@@ -344,6 +335,7 @@
           class="email-input"
           type="email"
           id="emailInput"
+          name="email"
           placeholder="your@email.com"
           autocomplete="email"
         >
@@ -356,7 +348,6 @@
 
   </div>
 
-  <!-- RIGHT: screenshot -->
   <div class="right">
     <div class="screenshot-wrap">
       <img
@@ -375,7 +366,7 @@
 </footer>
 
 <script>
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwBNAB4naLt43bIOKz4MeLG6V6EiWsqBOctASnB3YB_elHbJzIx-mCLL3ifopzV76k/exec';
+  const SUBMIT_FORM_URL = 'https://submit-form.com/WFlv0U6CD';
 
   async function submitEmail() {
     const input = document.getElementById('emailInput');
@@ -394,34 +385,24 @@
     msg.className = 'form-msg loading';
 
     try {
-      const res = await fetch(APPS_SCRIPT_URL, {
+      const res = await fetch(SUBMIT_FORM_URL, {
         method: 'POST',
         headers: {
-          'Content-Type': 'text/plain;charset=utf-8'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({ email })
       });
 
-      const data = await res.json();
-
-      if (data.status === "duplicate") {
-        msg.textContent = "You're already on the list 👀";
-        msg.className = "form-msg error";
-        btn.disabled = false;
-        return;
-      }
-
-      if (data.status === "ok") {
+      if (res.ok) {
         showToast();
         input.value = '';
         msg.textContent = '';
         msg.className = 'form-msg';
-        btn.disabled = false;
-        return;
+      } else {
+        msg.textContent = 'Something went wrong. Please try again.';
+        msg.className = 'form-msg error';
       }
-
-      msg.textContent = data.message || "Something went wrong.";
-      msg.className = "form-msg error";
       btn.disabled = false;
 
     } catch (err) {
